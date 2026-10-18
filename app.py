@@ -1,3 +1,196 @@
+
+import os
+import streamlit as st
+import streamlit.components.v1 as components
+from google import genai
+from google.genai import types
+
+# =====================================
+# ページ設定
+# =====================================
+
+st.set_page_config(
+    page_title="Python学習支援チャットボット",
+    page_icon="🐍",
+    layout="centered"
+)
+
+st.title("🐍 Python学習支援チャットボット")
+st.write("AIと一緒にPythonを学ぼう！")
+
+# =====================================
+# APIキー確認
+# =====================================
+
+api_key = os.getenv("GEMINI_API_KEY")
+
+if not api_key:
+    st.error("APIキーが設定されていません。")
+    st.stop()
+
+# =====================================
+# Geminiクライアント
+# =====================================
+
+@st.cache_resource
+def get_client(key):
+    return genai.Client(
+        api_key=key,
+        http_options={"timeout": 60000}
+    )
+
+client = get_client(api_key)
+
+# =====================================
+# Pythonコードを試す（ブラウザ内で実行）
+# =====================================
+
+st.divider()
+st.header("🧪 Pythonコードを試す")
+st.write("コードを書いて、実行結果を確認しよう！")
+
+components.html(
+    r"""
+    <div style="font-family: sans-serif;">
+      <textarea id="code" aria-label="Pythonコードを入力"
+        style="box-sizing:border-box;width:100%;height:180px;font-family:monospace;padding:10px;"
+        placeholder='例：print("こんにちは！")'>print("こんにちは！")</textarea>
+      <button id="run" style="margin-top:10px;padding:8px 16px;cursor:pointer;">
+        ▶ コードを実行
+      </button>
+      <p id="status" aria-live="polite"></p>
+      <h4>実行結果</h4>
+      <pre id="output" style="background:#f0f2f6;color:#222;padding:12px;white-space:pre-wrap;min-height:35px;"></pre>
+    </div>
+    <script>
+      const button = document.getElementById("run");
+      const output = document.getElementById("output");
+      const status = document.getElementById("status");
+      let pyodide = null;
+
+      button.addEventListener("click", async () => {
+        button.disabled = true;
+        output.textContent = "";
+        status.textContent = "Pythonを準備しています...初回は少し時間がかかります。";
+        try {
+          if (!pyodide) {
+            if (!window.loadPyodide) {
+              await new Promise((resolve, reject) => {
+                const script = document.createElement("script");
+                script.src = "https://cdn.jsdelivr.net/pyodide/v0.27.7/full/pyodide.js";
+                script.onload = resolve;
+                script.onerror = () => reject(new Error("Python実行環境を読み込めませんでした。インターネット接続を確認してください。"));
+                document.head.appendChild(script);
+              });
+            }
+            pyodide = await loadPyodide();
+          }
+          let captured = [];
+          pyodide.setStdout({ batched: (text) => captured.push(text) });
+          pyodide.setStderr({ batched: (text) => captured.push(text) });
+          await pyodide.runPythonAsync(document.getElementById("code").value);
+          output.textContent = captured.join("\n") || "実行完了！（表示する結果はありません）";
+          status.textContent = "実行が終わりました。";
+        } catch (error) {
+          output.textContent = String(error);
+          status.textContent = "実行中にエラーが発生しました。";
+        } finally {
+          button.disabled = false;
+        }
+      });
+    </script>
+    """,
+    height=430,
+    scrolling=False,
+)
+
+# =====================================
+# 学習モード
+# =====================================
+
+mode = st.radio(
+    "学習モードを選んでください",
+    [
+        "Pythonを質問する",
+        "ヒントをもらう",
+        "練習問題を解く",
+        "おみくじゲームを作る",
+        "じゃんけんゲームを作る"
+    ]
+)
+
+# =====================================
+# モード別の指示
+# =====================================
+
+instructions = {
+    "Pythonを質問する": """
+Pythonについて、初心者にも分かる日本語で説明してください。
+短いコード例を入れてください。
+""",
+    "ヒントをもらう": """
+すぐに答えを全部教えず、まず短いヒントを1つ出してください。
+学習者が「コードを見せて」と言ったら必要なコードを示してください。
+""",
+    "練習問題を解く": """
+Python初心者向けの問題を1問出してください。
+学習者の回答を待ち、回答後に良い点と改善点を説明してください。
+""",
+    "おみくじゲームを作る": """
+おみくじゲームを小さなステップに分けて教えてください。
+print、random、変数を段階的に使います。
+完成コードを最初から全部見せず、学習者自身に書いてもらってください。
+コードが送られたら確認し、直す点を説明してください。
+""",
+    "じゃんけんゲームを作る": """
+じゃんけんゲームを小さなステップに分けて教えてください。
+input、random、ifを段階的に使います。
+完成コードを最初から全部見せず、学習者自身に書いてもらってください。
+コードが送られたら確認し、直す点を説明してください。
+""" 
+}
+
+
+# =====================================
+# 会話履歴とモード管理
+# =====================================
+
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
+if "previous_mode" not in st.session_state:
+    st.session_state.previous_mode = mode
+
+if st.session_state.previous_mode != mode:
+    st.session_state.messages = []
+    st.session_state.previous_mode = mode
+
+if "pending_question" not in st.session_state:
+    st.session_state.pending_question = None
+
+# =====================================
+# 会話履歴を表示
+# =====================================
+
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        if message.get("is_code", False):
+            st.code(message["content"], language="python")
+        else:
+            st.markdown(message["content"])
+
+# =====================================
+# 質問を処理
+# =====================================
+
+if st.session_state.pending_question is not None:
+    question = st.session_state.pending_question
+    st.session_state.pending_question = None
+
+    is_code = "\n" in question
+
+    st.session_state.messages.append({
+        "role": "user",
         "content": question,
         "is_code": is_code
     })
@@ -6,7 +199,7 @@
         if is_code:
             st.code(question, language="python")
         else:
-            st.markdown(question)
+                   st.markdown(question)
 
     with st.chat_message("assistant"):
         with st.spinner("AIが考えています..."):
