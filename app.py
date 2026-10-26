@@ -669,7 +669,7 @@ Pythonプログラミング学習支援チャットボットです。
                     "回答が返ってきませんでした。もう一度試してね！"
                 )
 
-            　　except Exception as e:
+            except Exception as e:
                 error = str(e)
 
                 if "429" in error or "RESOURCE_EXHAUSTED" in error:
@@ -677,16 +677,19 @@ Pythonプログラミング学習支援チャットボットです。
                         "⏳ APIの利用上限に達している可能性があります。\n\n"
                         "少し時間をおいてから、もう一度試してね！"
                     )
+
                 elif "503" in error or "UNAVAILABLE" in error:
                     answer = (
                         "🚦 AI先生が混雑しているみたい。\n\n"
                         "少し待ってから、もう一度試してね！"
                     )
+
                 elif "504" in error or "DEADLINE_EXCEEDED" in error:
                     answer = (
                         "⌛ 回答に時間がかかりすぎました。\n\n"
                         "もう一度試してね！"
                     )
+
                 else:
                     answer = (
                         "💦 通信中にエラーが発生しました。\n\n"
@@ -704,7 +707,7 @@ Pythonプログラミング学習支援チャットボットです。
 
 
 # =========================================
-# 質問入力エリア
+# 💌 Pythonの問題を質問する欄
 # =========================================
 
 st.divider()
@@ -739,7 +742,7 @@ if submitted:
 
 
 # =========================================
-# 会話リセット
+# 🧹 会話リセット
 # =========================================
 
 st.divider()
@@ -750,9 +753,18 @@ if st.button("🧹 会話をリセット", use_container_width=True):
     st.rerun()
 
 st.markdown(
-    "<div style='text-align:center;padding:20px;color:#8a81aa;'>"
-    "🐼 わくわく！Pythonラボ 🌈<br>"
-    "つくる・ためす・ひらめく！"
-    "</div>",
+    """
+    <div style="
+        text-align:center;
+        color:#8a81aa;
+        padding:20px 0 5px;
+        line-height:1.8;
+    ">
+        🐼 わくわく！Pythonラボ 🌈<br>
+        <span style="font-size:12px;">
+            つくる・ためす・ひらめく！
+        </span>
+    </div>
+    """,
     unsafe_allow_html=True,
 )
