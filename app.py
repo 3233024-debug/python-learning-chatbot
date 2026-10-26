@@ -669,7 +669,7 @@ Pythonプログラミング学習支援チャットボットです。
                     "回答が返ってきませんでした。もう一度試してね！"
                 )
 
-            except Exception as e:
+                       except Exception as e:
                 error = str(e)
 
                 if "429" in error or "RESOURCE_EXHAUSTED" in error:
@@ -687,10 +687,72 @@ Pythonプログラミング学習支援チャットボットです。
                         "⌛ 回答に時間がかかりすぎました。\n\n"
                         "もう一度試してね！"
                     )
-
                 else:
                     answer = (
                         "💦 通信中にエラーが発生しました。\n\n"
                         "設定や実行ログを確認してね！"
                     )
                     print("Gemini API error:", error)
+
+        st.markdown(answer)
+
+    st.session_state.messages.append({
+        "role": "assistant",
+        "content": answer,
+        "is_code": False,
+    })
+
+
+# =========================================
+# 質問入力エリア
+# =========================================
+
+st.divider()
+
+st.markdown("## 💌 Pythonの問題を質問しよう！")
+st.write(
+    "分からない問題やPythonの疑問を入力してね。"
+    "コードについての質問もできるよ！"
+)
+
+with st.form("chat_form", clear_on_submit=True):
+    question = st.text_area(
+        "📝 質問を入力する欄",
+        height=150,
+        placeholder=(
+            "例：Pythonのif文の使い方を教えて！\n"
+            "例：おみくじゲームにラッキーカラーを追加したい！"
+        ),
+    )
+
+    submitted = st.form_submit_button(
+        "🚀 質問を送信する",
+        use_container_width=True,
+    )
+
+if submitted:
+    if question.strip():
+        st.session_state.pending_question = question.strip()
+        st.rerun()
+    else:
+        st.warning("質問を入力してから送信してね！")
+
+
+# =========================================
+# 会話リセット
+# =========================================
+
+st.divider()
+
+if st.button("🧹 会話をリセット", use_container_width=True):
+    st.session_state.messages = []
+    st.session_state.pending_question = None
+    st.rerun()
+
+st.markdown(
+    "<div style='text-align:center;padding:20px;color:#8a81aa;'>"
+    "🐼 わくわく！Pythonラボ 🌈<br>"
+    "つくる・ためす・ひらめく！"
+    "</div>",
+    unsafe_allow_html=True,
+)
