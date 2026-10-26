@@ -625,30 +625,18 @@ if st.session_state.pending_question:
     process_question(pending)
 
 # =========================================
-# 📝 質問入力欄
-# 会話の表示・回答処理の後に配置する
+# 📝 質問入力欄（入力欄だけ表示）
 # =========================================
 
-st.markdown("## 💌 AI先生に聞いてみよう！")
-
 if mode == "Pythonを質問する":
-    st.write("分からないことやPythonの疑問を入力してね。")
     placeholder_text = "例：Pythonのif文の使い方を教えて！"
-
 elif mode == "ヒントをもらう":
-    st.write("問題やコードを入力して、ヒントをもらおう！")
     placeholder_text = "ヒントがほしい問題を入力してね！"
-
 elif mode == "おみくじゲームを作る":
-    st.write("おみくじゲームを作ってみよう！")
     placeholder_text = "例：次はおみくじの結果を表示したい！"
-
 elif mode == "じゃんけんゲームを作る":
-    st.write("じゃんけんゲームを作ろう！分からないところを入力してね。")
     placeholder_text = "例：コンピューターの手を決める方法を教えて！"
-
 else:
-    st.write("改良したいゲームのコードや機能を入力してね。")
     placeholder_text = "改良したいコードや追加したい機能を入力してね！"
 
 with st.form("chat_form", clear_on_submit=True):
