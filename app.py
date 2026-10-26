@@ -1,4 +1,3 @@
-
 import os
 import streamlit as st
 import streamlit.components.v1 as components
@@ -53,55 +52,104 @@ components.html(
     r"""
     <div style="font-family: sans-serif;">
       <textarea id="code" aria-label="Pythonコードを入力"
-        style="box-sizing:border-box;width:100%;height:180px;font-family:monospace;padding:10px;"
+        style="box-sizing:border-box;width:100%;height:220px;font-family:monospace;padding:10px;"
         placeholder='例：print("こんにちは！")'>print("こんにちは！")</textarea>
-      <button id="run" style="margin-top:10px;padding:8px 16px;cursor:pointer;">
+
+      <button id="run"
+        style="margin-top:10px;padding:8px 16px;cursor:pointer;">
         ▶ コードを実行
       </button>
+
       <p id="status" aria-live="polite"></p>
+
       <h4>実行結果</h4>
-      <pre id="output" style="background:#f0f2f6;color:#222;padding:12px;white-space:pre-wrap;min-height:35px;"></pre>
+
+      <pre id="output"
+        style="box-sizing:border-box;
+        background:#f0f2f6;
+        color:#222;
+        padding:12px;
+        white-space:pre-wrap;
+        overflow-wrap:anywhere;
+        min-height:50px;
+        height:300px;
+        overflow-y:scroll;
+        overflow-x:auto;
+        border-radius:6px;
+        border:1px solid #d0d4dc;
+        overscroll-behavior:contain;"></pre>
     </div>
+
     <script>
       const button = document.getElementById("run");
       const output = document.getElementById("output");
       const status = document.getElementById("status");
+
       let pyodide = null;
 
       button.addEventListener("click", async () => {
         button.disabled = true;
         output.textContent = "";
-        status.textContent = "Pythonを準備しています...初回は少し時間がかかります。";
+        status.textContent =
+          "Pythonを準備しています...初回は少し時間がかかります。";
+
         try {
           if (!pyodide) {
             if (!window.loadPyodide) {
               await new Promise((resolve, reject) => {
                 const script = document.createElement("script");
-                script.src = "https://cdn.jsdelivr.net/pyodide/v0.27.7/full/pyodide.js";
+
+                script.src =
+                  "https://cdn.jsdelivr.net/pyodide/v0.27.7/full/pyodide.js";
+
                 script.onload = resolve;
-                script.onerror = () => reject(new Error("Python実行環境を読み込めませんでした。インターネット接続を確認してください。"));
+
+                script.onerror = () => reject(
+                  new Error(
+                    "Python実行環境を読み込めませんでした。"
+                    + "インターネット接続を確認してください。"
+                  )
+                );
+
                 document.head.appendChild(script);
               });
             }
+
             pyodide = await loadPyodide();
           }
+
           let captured = [];
-          pyodide.setStdout({ batched: (text) => captured.push(text) });
-          pyodide.setStderr({ batched: (text) => captured.push(text) });
-          await pyodide.runPythonAsync(document.getElementById("code").value);
-          output.textContent = captured.join("\n") || "実行完了！（表示する結果はありません）";
+
+          pyodide.setStdout({
+            batched: (text) => captured.push(text)
+          });
+
+          pyodide.setStderr({
+            batched: (text) => captured.push(text)
+          });
+
+          const code = document.getElementById("code").value;
+
+          await pyodide.runPythonAsync(code);
+
+          output.textContent =
+            captured.join("\n") ||
+            "実行完了！（表示する結果はありません）";
+
           status.textContent = "実行が終わりました。";
+
         } catch (error) {
           output.textContent = String(error);
           status.textContent = "実行中にエラーが発生しました。";
+
         } finally {
           button.disabled = false;
         }
       });
     </script>
     """,
-    height=430,
-    scrolling=False,
+    height=750,
+    scrolling=True,
 )
 
 # =====================================
@@ -113,7 +161,6 @@ mode = st.radio(
     [
         "Pythonを質問する",
         "ヒントをもらう",
-        "練習問題を解く",
         "おみくじゲームを作る",
         "じゃんけんゲームを作る"
     ]
@@ -128,48 +175,10 @@ instructions = {
 Pythonについて、初心者にも分かる日本語で説明してください。
 短いコード例を入れてください。
 """,
+
     "ヒントをもらう": """
 すぐに答えを全部教えず、まず短いヒントを1つ出してください。
 学習者が「コードを見せて」と言ったら必要なコードを示してください。
-""",
-   "練習問題を解く": """
-あなたはPython学習のコーチです。
-
-最初に、学習者に次の2つから作りたいゲームを選んでもらってください。
-
-【ゲーム選択】
-1. 数字当てゲーム
-2. RPGゲーム
-
-選択されたゲームに合わせて、小さなステップに分けて開発を進めてください。
-
-【数字当てゲーム】
-・1から100までのランダムな数字を決める
-・プレイヤーが数字を予想する
-・正解より大きいか小さいかを教える
-・while文で正解まで繰り返す
-・予想回数を数える
-・挑戦回数の制限を追加する
-
-【RPGゲーム】
-・プレイヤーの名前とHPを設定する
-・敵のHPを設定する
-・攻撃コマンドを作る
-・ダメージを計算する
-・敵も反撃するようにする
-・while文で戦闘を繰り返す
-・勝利または敗北を判定する
-・経験値やレベルアップを追加する
-
-【教え方】
-・最初から完成コードを全部見せない
-・まずゲームを選んでもらう
-・選んだゲームの最初の課題を1つだけ出す
-・必要に応じてヒントや短いコード例を出す
-・送られたコードを確認して、良い点と改善点を説明する
-・できたら次のステップへ進む
-・完成後は追加チャレンジを提案する
-・日本語で分かりやすく説明する
 """,
 
     "おみくじゲームを作る": """
@@ -178,14 +187,14 @@ print、random、変数を段階的に使います。
 完成コードを最初から全部見せず、学習者自身に書いてもらってください。
 コードが送られたら確認し、直す点を説明してください。
 """,
+
     "じゃんけんゲームを作る": """
 じゃんけんゲームを小さなステップに分けて教えてください。
 input、random、ifを段階的に使います。
 完成コードを最初から全部見せず、学習者自身に書いてもらってください。
 コードが送られたら確認し、直す点を説明してください。
-""" 
+"""
 }
-
 
 # =====================================
 # 会話履歴とモード管理
@@ -235,7 +244,7 @@ if st.session_state.pending_question is not None:
         if is_code:
             st.code(question, language="python")
         else:
-                   st.markdown(question)
+            st.markdown(question)
 
     with st.chat_message("assistant"):
         with st.spinner("AIが考えています..."):
@@ -268,7 +277,11 @@ Pythonプログラミング学習支援チャットボットです。
                         if message["role"] == "user"
                         else "AI"
                     )
-                    prompt += f"\n{speaker}：\n{message['content']}\n"
+
+                    prompt += (
+                        f"\n{speaker}：\n"
+                        f"{message['content']}\n"
+                    )
 
                 response = client.models.generate_content(
                     model="gemini-3.5-flash-lite",
@@ -292,21 +305,25 @@ Pythonプログラミング学習支援チャットボットです。
                         "⚠️ APIの利用上限に達している可能性があります。"
                         "時間をおいてから、もう一度試してください。"
                     )
+
                 elif "503" in error or "UNAVAILABLE" in error:
                     answer = (
                         "⚠️ Geminiが混雑しています。"
                         "少し時間をおいてから試してください。"
                     )
+
                 elif "504" in error or "DEADLINE_EXCEEDED" in error:
                     answer = (
                         "⚠️ 回答に時間がかかりすぎました。"
                         "もう一度試してください。"
                     )
+
                 else:
                     answer = (
                         "⚠️ 通信中にエラーが発生しました。"
                         "PowerShellに表示されたエラーを確認してください。"
                     )
+
                     print("Gemini API error:", error)
 
         st.markdown(answer)
@@ -336,3 +353,11 @@ if submitted and question.strip():
 
 # =====================================
 # 会話リセット
+# =====================================
+
+st.divider()
+
+if st.button("会話をリセット"):
+    st.session_state.messages = []
+    st.session_state.pending_question = None
+    st.rerun()
