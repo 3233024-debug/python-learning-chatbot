@@ -669,7 +669,7 @@ Pythonプログラミング学習支援チャットボットです。
                     "回答が返ってきませんでした。もう一度試してね！"
                 )
 
-                       except Exception as e:
+            　　except Exception as e:
                 error = str(e)
 
                 if "429" in error or "RESOURCE_EXHAUSTED" in error:
