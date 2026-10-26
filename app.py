@@ -682,4 +682,15 @@ Pythonプログラミング学習支援チャットボットです。
                         "🚦 AI先生が混雑しているみたい。\n\n"
                         "少し待ってから、もう一度試してね！"
                     )
-                elif "504" in error or "DEADLINE
+                elif "504" in error or "DEADLINE_EXCEEDED" in error:
+                    answer = (
+                        "⌛ 回答に時間がかかりすぎました。\n\n"
+                        "もう一度試してね！"
+                    )
+
+                else:
+                    answer = (
+                        "💦 通信中にエラーが発生しました。\n\n"
+                        "設定や実行ログを確認してね！"
+                    )
+                    print("Gemini API error:", error)
