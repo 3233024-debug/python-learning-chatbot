@@ -94,6 +94,7 @@ div[role="radiogroup"] label {
     padding: 16px;
 }
 
+/* 小さい画面向け */
 @media (max-width: 700px) {
     .block-container {
         padding: 1rem 1rem 2rem 1rem;
@@ -327,7 +328,6 @@ print("🎉 実行できたね！")</textarea>
             });
 
             const code = document.getElementById("code").value;
-
             await pyodide.runPythonAsync(code);
 
             output.textContent = captured.join("\n") ||
@@ -354,15 +354,13 @@ print("🎉 実行できたね！")</textarea>
 # 🎮 学習モード選択
 # =========================================
 
-st.divider()
-
 st.markdown("""
 <div style="
     text-align: center;
     background: linear-gradient(120deg, #fff0fa, #f0edff);
     border-radius: 18px;
     padding: 18px;
-    margin-bottom: 14px;
+    margin: 20px 0 14px 0;
 ">
     <div style="font-size: 28px;">🎮 🌈 💡</div>
     <div style="
@@ -410,7 +408,18 @@ mode_descriptions = {
     "作ったゲームを改良する": "今あるゲームに新しい機能を追加しよう！",
 }
 
-st.info(f"🌟 {mode_descriptions[mode]}")
+st.markdown(f"""
+<div style="
+    background: #dff1ff;
+    border-radius: 12px;
+    padding: 18px 22px;
+    margin: 16px 0;
+    color: #45445c;
+    font-size: 20px;
+">
+    🌟 {mode_descriptions[mode]}
+</div>
+""", unsafe_allow_html=True)
 
 # =========================================
 # 📚 モード別の指示
@@ -492,18 +501,7 @@ if "pending_question" not in st.session_state:
     st.session_state.pending_question = None
 
 # =========================================
-# 💬 会話履歴を表示
-# =========================================
-
-for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
-        if message.get("is_code", False):
-            st.code(message["content"], language="python")
-        else:
-            st.markdown(message["content"])
-
-# =========================================
-# 🤖 質問を処理
+# 🤖 質問を処理する関数
 # =========================================
 
 def process_question(question):
@@ -607,36 +605,57 @@ Pythonプログラミング学習支援チャットボットです。
     })
 
 # =========================================
-# 📝 入力欄
-# Python質問モードのときだけ表示
+# 💬 過去の会話を表示
 # =========================================
 
-st.divider()
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        if message.get("is_code", False):
+            st.code(message["content"], language="python")
+        else:
+            st.markdown(message["content"])
+
+# =========================================
+# 📩 送信された質問があれば先に処理
+# =========================================
+
+if st.session_state.pending_question:
+    pending = st.session_state.pending_question
+    st.session_state.pending_question = None
+    process_question(pending)
+
+# =========================================
+# 📝 質問入力欄
+# 会話の表示・回答処理の後に配置する
+# =========================================
 
 st.markdown("## 💌 AI先生に聞いてみよう！")
 
 if mode == "Pythonを質問する":
-    st.write(
-        "分からない問題やPythonの疑問を入力してね。"
-        "コードについての質問もできるよ！"
-    )
+    st.write("分からないことやPythonの疑問を入力してね。")
+    placeholder_text = "例：Pythonのif文の使い方を教えて！"
+
 elif mode == "ヒントをもらう":
-    st.write("問題や書いているコードを入力して、ヒントをもらおう！")
+    st.write("問題やコードを入力して、ヒントをもらおう！")
+    placeholder_text = "ヒントがほしい問題を入力してね！"
+
 elif mode == "おみくじゲームを作る":
-    st.write("おみくじゲームを作ろう！最初の質問やコードを入力してね。")
+    st.write("おみくじゲームを作ってみよう！")
+    placeholder_text = "例：次はおみくじの結果を表示したい！"
+
 elif mode == "じゃんけんゲームを作る":
     st.write("じゃんけんゲームを作ろう！分からないところを入力してね。")
+    placeholder_text = "例：コンピューターの手を決める方法を教えて！"
+
 else:
-    st.write("改良したいゲームのコードや、追加したい機能を入力してね。")
+    st.write("改良したいゲームのコードや機能を入力してね。")
+    placeholder_text = "改良したいコードや追加したい機能を入力してね！"
 
 with st.form("chat_form", clear_on_submit=True):
     question = st.text_area(
-        "📝 メッセージを入力",
-        height=120,
-        placeholder=(
-            "例：Pythonのif文の使い方を教えて！\n"
-            "例：じゃんけんゲームを作りたい！"
-        ),
+        "📝 質問・コードを入力",
+        placeholder=placeholder_text,
+        height=100,
     )
 
     submitted = st.form_submit_button(
@@ -649,22 +668,11 @@ if submitted:
         st.session_state.pending_question = question.strip()
         st.rerun()
     else:
-        st.warning("メッセージを入力してから送信してね！")
-
-# =========================================
-# 🔄 送信された質問を処理
-# =========================================
-
-if st.session_state.pending_question:
-    pending = st.session_state.pending_question
-    st.session_state.pending_question = None
-    process_question(pending)
+        st.warning("質問を入力してね！")
 
 # =========================================
 # 🧹 会話リセット
 # =========================================
-
-st.divider()
 
 if st.button("🧹 このモードの会話をリセット"):
     st.session_state.messages = []
