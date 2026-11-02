@@ -219,13 +219,11 @@ components.html(
             border-radius: 12px;
             background: #faf9ff;
             color: #302d46;
-        ">print("こんにちは！")
-print("🐼 Pythonラボへようこそ！")
+        ">name = input("名前を入力してください：")
+print("こんにちは、" + name + "さん！")
 
-for i in range(1, 6):
-    print("⭐ チャレンジ", i)
-
-print("🎉 実行できたね！")</textarea>
+age = input("年齢を入力してください：")
+print("あなたは", age, "歳なんだね！")</textarea>
 
         <button id="run" style="
             margin-top: 12px;
@@ -283,8 +281,8 @@ print("🎉 実行できたね！")</textarea>
             margin-top: 10px;
             line-height: 1.7;
         ">
-            💡 長い結果は黒い枠の中でスクロールできるよ。<br>
-            ※ input()を使う対話型プログラムは、この実行欄ではそのまま動かない場合があります。
+            💡 input()を使うと、入力用のダイアログが表示されるよ！<br>
+            ※入力を求められたら、文字を入力して「OK」を押してね。
         </div>
     </div>
 
@@ -292,6 +290,7 @@ print("🎉 実行できたね！")</textarea>
     const button = document.getElementById("run");
     const output = document.getElementById("output");
     const status = document.getElementById("status");
+
     let pyodide = null;
 
     button.addEventListener("click", async () => {
@@ -327,7 +326,34 @@ print("🎉 実行できたね！")</textarea>
                 batched: (text) => captured.push(text)
             });
 
+            // input()からの入力を受け取る
+            let inputBuffer = [];
+
+            pyodide.setStdin({
+                stdin: () => {
+                    if (inputBuffer.length === 0) {
+                        const value = window.prompt(
+                            "🐼 Pythonからの入力です。文字を入力してね！"
+                        );
+
+                        if (value === null) {
+                            return null;
+                        }
+
+                        inputBuffer = Array.from(
+                            new TextEncoder().encode(value + "\n")
+                        );
+                    }
+
+                    return inputBuffer.shift();
+                },
+                isatty: true
+            });
+
             const code = document.getElementById("code").value;
+
+            status.textContent = "🐍 Pythonを実行しています...";
+
             await pyodide.runPythonAsync(code);
 
             output.textContent = captured.join("\n") ||
@@ -619,7 +645,7 @@ if st.session_state.pending_question:
 # 📝 質問入力欄（入力欄だけ表示）
 # =========================================
 
-if mode == "Pythonを質問する":
+if mode == "Pythonに質問する":
     placeholder_text = "例：Pythonのif文の使い方を教えて！"
 elif mode == "おみくじゲームを作る":
     placeholder_text = "例：次はおみくじの結果を表示したい！"
