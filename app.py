@@ -189,190 +189,88 @@ st.markdown("""
 
 components.html(
     r"""
-    <div style="
-        font-family: Arial, sans-serif;
-        background: white;
-        border: 2px solid #e4dcff;
-        border-radius: 18px;
-        padding: 16px;
-        box-sizing: border-box;
-    ">
-        <div style="
-            color: #6047ad;
-            font-size: 17px;
-            font-weight: bold;
-            margin-bottom: 10px;
-        ">
-            💻 コード入力
-        </div>
-
-        <textarea id="code" spellcheck="false" style="
-            box-sizing: border-box;
-            width: 100%;
-            height: 220px;
-            resize: vertical;
-            font-family: Consolas, monospace;
-            font-size: 14px;
-            line-height: 1.7;
-            padding: 14px;
-            border: 2px solid #ddd5ff;
-            border-radius: 12px;
-            background: #faf9ff;
-            color: #302d46;
-        ">name = input("名前を入力してください：")
+    <div style="font-family:Arial,sans-serif;background:#fff;border:2px solid #e4dcff;border-radius:20px;padding:18px;box-sizing:border-box;">
+      <div style="color:#6047ad;font-size:18px;font-weight:800;margin-bottom:10px;">💻 Pythonコード入力</div>
+      <textarea id="code" spellcheck="false" style="box-sizing:border-box;width:100%;height:220px;resize:vertical;font-family:Consolas,monospace;font-size:14px;line-height:1.7;padding:14px;border:2px solid #ddd5ff;border-radius:14px;background:#faf9ff;color:#302d46;">name = input("名前を入力してください：")
 print("こんにちは、" + name + "さん！")
 
 age = input("年齢を入力してください：")
 print("あなたは", age, "歳なんだね！")</textarea>
 
-        <button id="run" style="
-            margin-top: 12px;
-            width: 100%;
-            padding: 13px;
-            border: 0;
-            border-radius: 12px;
-            background: linear-gradient(100deg, #8b6ce8, #6798f5);
-            color: white;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-        ">
-            ▶ コードを実行する！
-        </button>
+      <section style="margin:16px auto 12px;max-width:680px;background:linear-gradient(135deg,#fff4fb,#f0f4ff);border:2px solid #e3d9ff;border-radius:18px;padding:16px;box-sizing:border-box;">
+        <div style="text-align:center;color:#6047ad;font-size:17px;font-weight:800;margin-bottom:6px;">⌨️ input() に渡す値</div>
+        <div style="text-align:center;color:#6d6685;font-size:13px;line-height:1.6;margin-bottom:10px;">入力が必要な数だけ、1行ずつ書いてね。上から順番に使われるよ。</div>
+        <textarea id="stdinValues" aria-label="Pythonのinputに渡す値" placeholder="たろう&#10;12" style="display:block;box-sizing:border-box;width:100%;min-height:88px;resize:vertical;border:2px solid #cfc2ff;border-radius:12px;padding:12px;background:white;color:#302d46;font-size:16px;line-height:1.7;">たろう
+12</textarea>
+        <div style="text-align:center;color:#77718e;font-size:12px;margin-top:8px;">例：名前と年齢を入力するなら、1行目に名前、2行目に年齢</div>
+      </section>
 
-        <div id="status" aria-live="polite" style="
-            margin: 12px 0;
-            color: #6353a0;
-            font-size: 14px;
-            line-height: 1.7;
-        ">
-            🌟 準備OK！実行ボタンを押してみよう。
-        </div>
-
-        <div style="
-            color: #23836b;
-            font-size: 17px;
-            font-weight: bold;
-            margin: 12px 0 8px;
-        ">
-            📺 実行結果
-        </div>
-
-        <pre id="output" style="
-            box-sizing: border-box;
-            background: #24243a;
-            color: #e5e8ff;
-            padding: 16px;
-            height: 300px;
-            overflow: auto;
-            white-space: pre-wrap;
-            overflow-wrap: anywhere;
-            border: 2px solid #393958;
-            border-radius: 12px;
-            margin: 0;
-            font-family: Consolas, monospace;
-            font-size: 14px;
-            line-height: 1.8;
-        ">✨ ここに実行結果が表示されるよ！</pre>
-
-        <div style="
-            color: #77718e;
-            font-size: 12px;
-            margin-top: 10px;
-            line-height: 1.7;
-        ">
-            💡 input()を使うと、入力用のダイアログが表示されるよ！<br>
-            ※入力を求められたら、文字を入力して「OK」を押してね。
-        </div>
+      <button id="run" style="margin-top:8px;width:100%;padding:14px;border:0;border-radius:14px;background:linear-gradient(100deg,#8b6ce8,#6798f5);color:white;font-size:16px;font-weight:bold;cursor:pointer;">▶ コードを実行する！</button>
+      <div id="status" aria-live="polite" style="margin:12px 0;color:#6353a0;font-size:14px;line-height:1.7;">🌟 準備OK！入力値を書いて実行してみよう。</div>
+      <div style="color:#23836b;font-size:17px;font-weight:bold;margin:12px 0 8px;">📺 実行結果</div>
+      <pre id="output" style="box-sizing:border-box;background:#24243a;color:#e5e8ff;padding:16px;height:300px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;border:2px solid #393958;border-radius:12px;margin:0;font-family:Consolas,monospace;font-size:14px;line-height:1.8;">✨ ここに実行結果が表示されるよ！</pre>
+      <div style="color:#77718e;font-size:12px;margin-top:10px;line-height:1.7;">💡 input() の入力は、実行前に上の入力欄へ1行ずつ用意してね。実行中にブラウザのダイアログが何度も開くことはないよ。</div>
     </div>
 
     <script>
     const button = document.getElementById("run");
     const output = document.getElementById("output");
     const status = document.getElementById("status");
-
     let pyodide = null;
 
     button.addEventListener("click", async () => {
-        button.disabled = true;
-        output.textContent = "";
-        status.textContent = "⏳ Pythonを準備しています...";
+      if (button.disabled) return;
+      button.disabled = true;
+      button.style.opacity = "0.65";
+      output.textContent = "";
+      status.textContent = "⏳ Pythonを準備しています...";
 
-        try {
-            if (!pyodide) {
-                if (!window.loadPyodide) {
-                    await new Promise((resolve, reject) => {
-                        const script = document.createElement("script");
-                        script.src =
-                            "https://cdn.jsdelivr.net/pyodide/v0.27.7/full/pyodide.js";
-                        script.onload = resolve;
-                        script.onerror = () => reject(
-                            new Error("Python実行環境を読み込めませんでした。")
-                        );
-                        document.head.appendChild(script);
-                    });
-                }
-
-                pyodide = await loadPyodide();
-            }
-
-            const captured = [];
-
-            pyodide.setStdout({
-                batched: (text) => captured.push(text)
+      try {
+        if (!pyodide) {
+          if (!window.loadPyodide) {
+            await new Promise((resolve, reject) => {
+              const script = document.createElement("script");
+              script.src = "https://cdn.jsdelivr.net/pyodide/v0.27.7/full/pyodide.js";
+              script.onload = resolve;
+              script.onerror = () => reject(new Error("Python実行環境を読み込めませんでした。"));
+              document.head.appendChild(script);
             });
-
-            pyodide.setStderr({
-                batched: (text) => captured.push(text)
-            });
-
-            // input()からの入力を受け取る
-            let inputBuffer = [];
-
-            pyodide.setStdin({
-                stdin: () => {
-                    if (inputBuffer.length === 0) {
-                        const value = window.prompt(
-                            "🐼 Pythonからの入力です。文字を入力してね！"
-                        );
-
-                        if (value === null) {
-                            return null;
-                        }
-
-                        inputBuffer = Array.from(
-                            new TextEncoder().encode(value + "\n")
-                        );
-                    }
-
-                    return inputBuffer.shift();
-                },
-                isatty: true
-            });
-
-            const code = document.getElementById("code").value;
-
-            status.textContent = "🐍 Pythonを実行しています...";
-
-            await pyodide.runPythonAsync(code);
-
-            output.textContent = captured.join("\n") ||
-                "🎉 実行完了！表示する結果はありません。";
-
-            status.textContent = "🎉 実行成功！よくできました！";
-
-        } catch (error) {
-            output.textContent = String(error);
-            status.textContent =
-                "💦 エラーが発生しました。コードを確認してみよう。";
-
-        } finally {
-            button.disabled = false;
+          }
+          pyodide = await loadPyodide();
         }
+
+        const captured = [];
+        pyodide.setStdout({batched: (text) => captured.push(text)});
+        pyodide.setStderr({batched: (text) => captured.push(text)});
+
+        // 実行前に入力欄の内容をバイト列にし、stdinから順番に1文字ずつ渡す。
+        // これにより、1文字ごとにpromptが開く無限ループを避ける。
+        let inputBytes = Array.from(new TextEncoder().encode(
+          document.getElementById("stdinValues").value.replace(/\r\n/g, "\n")
+        ));
+        let inputIndex = 0;
+        pyodide.setStdin({
+          stdin: () => inputIndex < inputBytes.length ? inputBytes[inputIndex++] : null,
+          isatty: true
+        });
+
+        const code = document.getElementById("code").value;
+        status.textContent = "🐍 Pythonを実行しています...";
+        await pyodide.runPythonAsync(code);
+
+        output.textContent = captured.join("\n") || "🎉 実行完了！表示する結果はありません。";
+        status.textContent = "🎉 実行成功！よくできました！";
+      } catch (error) {
+        output.textContent = String(error);
+        status.textContent = "💦 エラーが発生しました。入力値の行数やコードを確認してね。";
+      } finally {
+        button.disabled = false;
+        button.style.opacity = "1";
+      }
     });
     </script>
     """,
-    height=850,
+    height=1050,
     scrolling=False,
 )
 
@@ -692,8 +590,7 @@ st.markdown("""
     color: #77718e;
     padding: 20px 8px;
     line-height: 1.9;
-">
-    🐼 🐸 🐰<br>
+">    🐼 🐸 🐰<br>
     <b>わくわく！Pythonラボ</b><br>
     少しずつ挑戦して、楽しくプログラミングを学ぼう！ 🌈
 </div>
