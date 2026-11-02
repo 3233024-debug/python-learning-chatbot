@@ -494,10 +494,34 @@ print("あなたは", age, "歳なんだね！")</textarea>
 
             status.textContent = "🎉 実行成功！よくできました！";
 
-        } catch (error) {
-            output.textContent = String(error);
+                } catch (error) {
+            const errorText = String(error);
+            output.textContent = errorText;
+
+            let explanation = "エラーの原因を特定できませんでした。エラー文を確認してみよう！";
+
+            if (errorText.includes("SyntaxError")) {
+                explanation = "📝 文法エラーだよ！\nカッコや引用符の閉じ忘れ、コロンの付け忘れなどを確認してみよう。";
+            } else if (errorText.includes("NameError")) {
+                explanation = "🔍 名前エラーだよ！\n変数名や関数名のスペルが正しいか確認してみよう。";
+            } else if (errorText.includes("TypeError")) {
+                explanation = "🧩 型エラーだよ！\n数字と文字列など、種類の違うデータを間違った方法で使っていないか確認してみよう。";
+            } else if (errorText.includes("IndentationError")) {
+                explanation = "📐 インデントエラーだよ！\n行の先頭の空白や字下げがそろっているか確認してみよう。";
+            } else if (errorText.includes("IndexError")) {
+                explanation = "📦 リストの範囲エラーだよ！\n存在しない番号のデータを取り出そうとしていないか確認してみよう。";
+            } else if (errorText.includes("ZeroDivisionError")) {
+                explanation = "➗ 0で割ろうとしているよ！\n割り算の右側が0になっていないか確認してみよう。";
+            } else if (errorText.includes("EOFError")) {
+                explanation = "⌨️ 入力が途中で終了したよ！\ninput()の入力をキャンセルしていないか確認してみよう。";
+            }
+
+            output.textContent =
+                "【エラーの内容】\n" + errorText +
+                "\n\n【💡 AI先生からのヒント】\n" + explanation;
+
             status.textContent =
-                "💦 エラーが発生しました。コードを確認してみよう。";
+                "💦 エラーを見つけたよ！ヒントを参考に直してみよう。";
         }
     }
     </script>
