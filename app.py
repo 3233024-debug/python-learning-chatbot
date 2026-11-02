@@ -94,7 +94,6 @@ div[role="radiogroup"] label {
     padding: 16px;
 }
 
-/* 小さい画面向け */
 @media (max-width: 700px) {
     .block-container {
         padding: 1rem 1rem 2rem 1rem;
@@ -225,7 +224,7 @@ print("こんにちは、" + name + "さん！")
 age = input("年齢を入力してください：")
 print("あなたは", age, "歳なんだね！")</textarea>
 
-        <button id="run" style="
+        <button id="prepare" style="
             margin-top: 12px;
             width: 100%;
             padding: 13px;
@@ -239,6 +238,41 @@ print("あなたは", age, "歳なんだね！")</textarea>
         ">
             ▶ コードを実行する！
         </button>
+
+        <div id="input-area" style="
+            display: none;
+            background: #f4f0ff;
+            border: 2px solid #cfc2ff;
+            border-radius: 14px;
+            padding: 15px;
+            margin-top: 15px;
+        ">
+            <div style="
+                font-size: 19px;
+                font-weight: bold;
+                color: #6047ad;
+                margin-bottom: 10px;
+            ">
+                ⌨️ Pythonの入力コーナー
+            </div>
+
+            <div id="input-fields"></div>
+
+            <button id="execute" style="
+                margin-top: 15px;
+                width: 100%;
+                padding: 13px;
+                border: 0;
+                border-radius: 12px;
+                background: #23836b;
+                color: white;
+                font-size: 16px;
+                font-weight: bold;
+                cursor: pointer;
+            ">
+                ✅ 入力内容で実行！
+            </button>
+        </div>
 
         <div id="status" aria-live="polite" style="
             margin: 12px 0;
@@ -281,40 +315,148 @@ print("あなたは", age, "歳なんだね！")</textarea>
             margin-top: 10px;
             line-height: 1.7;
         ">
-            💡 input()を使うと、入力用のダイアログが表示されるよ！<br>
-            ※入力を求められたら、文字を入力して「OK」を押してね。
+            💡 input()を使うと、ここに入力欄が表示されるよ！<br>
+            入力欄に答えを書いてから「入力内容で実行！」を押してね。
         </div>
     </div>
 
     <script>
-    const button = document.getElementById("run");
+    const prepareButton = document.getElementById("prepare");
+    const executeButton = document.getElementById("execute");
+    const codeArea = document.getElementById("code");
     const output = document.getElementById("output");
     const status = document.getElementById("status");
+    const inputArea = document.getElementById("input-area");
+    const inputFields = document.getElementById("input-fields");
 
     let pyodide = null;
+    let currentCode = "";
+    let inputCount = 0;
 
-    button.addEventListener("click", async () => {
-        button.disabled = true;
+    // Pythonコード内のinput()を数える
+    function countInputs(code) {
+        const matches = code.match(/\binput\s*\(/g);
+        return matches ? matches.length : 0;
+    }
+
+    // input()の数だけ入力欄を作る
+    function makeInputFields(count) {
+        inputFields.innerHTML = "";
+
+        for (let i = 0; i < count; i++) {
+            const wrapper = document.createElement("div");
+            wrapper.style.marginBottom = "14px";
+
+            const label = document.createElement("label");
+            label.textContent = `🐼 ${i + 1}回目の入力`;
+            label.style.display = "block";
+            label.style.fontWeight = "bold";
+            label.style.color = "#6047ad";
+            label.style.marginBottom = "6px";
+
+            const input = document.createElement("input");
+            input.type = "text";
+            input.id = `python-input-${i}`;
+            input.placeholder = `${i + 1}回目の答えを入力してね！`;
+            input.style.width = "100%";
+            input.style.boxSizing = "border-box";
+            input.style.padding = "12px";
+            input.style.border = "2px solid #ddd5ff";
+            input.style.borderRadius = "10px";
+            input.style.fontSize = "15px";
+
+            wrapper.appendChild(label);
+            wrapper.appendChild(input);
+            inputFields.appendChild(wrapper);
+        }
+
+        inputArea.style.display = count > 0 ? "block" : "none";
+    }
+
+    // Pyodideを準備する
+    async function preparePyodide() {
+        if (!pyodide) {
+            status.textContent = "⏳ Pythonを準備しています...";
+
+            if (!window.loadPyodide) {
+                await new Promise((resolve, reject) => {
+                    const script = document.createElement("script");
+                    script.src =
+                        "https://cdn.jsdelivr.net/pyodide/v0.27.7/full/pyodide.js";
+                    script.onload = resolve;
+                    script.onerror = () => reject(
+                        new Error("Python実行環境を読み込めませんでした。")
+                    );
+                    document.head.appendChild(script);
+                });
+            }
+
+            pyodide = await loadPyodide();
+        }
+    }
+
+    // 最初のボタン：コードを確認して入力欄を作る
+    prepareButton.addEventListener("click", async () => {
+        currentCode = codeArea.value;
+        inputCount = countInputs(currentCode);
+
         output.textContent = "";
-        status.textContent = "⏳ Pythonを準備しています...";
+        inputFields.innerHTML = "";
 
         try {
-            if (!pyodide) {
-                if (!window.loadPyodide) {
-                    await new Promise((resolve, reject) => {
-                        const script = document.createElement("script");
-                        script.src =
-                            "https://cdn.jsdelivr.net/pyodide/v0.27.7/full/pyodide.js";
-                        script.onload = resolve;
-                        script.onerror = () => reject(
-                            new Error("Python実行環境を読み込めませんでした。")
-                        );
-                        document.head.appendChild(script);
-                    });
-                }
+            await preparePyodide();
 
-                pyodide = await loadPyodide();
+            if (inputCount > 0) {
+                makeInputFields(inputCount);
+
+                status.textContent =
+                    `✏️ ${inputCount}個の入力欄を用意したよ！答えを入力してね。`;
+
+                document.getElementById("python-input-0").focus();
+            } else {
+                inputArea.style.display = "none";
+                await runPython([]);
             }
+
+        } catch (error) {
+            output.textContent = String(error);
+            status.textContent = "💦 Pythonの準備中にエラーが発生しました。";
+        }
+    });
+
+    // 2つ目のボタン：入力内容を集めてPythonを実行
+    executeButton.addEventListener("click", async () => {
+        const values = [];
+
+        for (let i = 0; i < inputCount; i++) {
+            const field = document.getElementById(`python-input-${i}`);
+
+            if (!field.value.trim()) {
+                status.textContent =
+                    `⚠️ ${i + 1}回目の入力欄に答えを入力してね！`;
+                field.focus();
+                return;
+            }
+
+            values.push(field.value);
+        }
+
+        executeButton.disabled = true;
+        prepareButton.disabled = true;
+
+        await runPython(values);
+
+        executeButton.disabled = false;
+        prepareButton.disabled = false;
+    });
+
+    // Pythonを実行する
+    async function runPython(values) {
+        output.textContent = "";
+        status.textContent = "🐍 Pythonを実行しています...";
+
+        try {
+            await preparePyodide();
 
             const captured = [];
 
@@ -326,28 +468,18 @@ print("あなたは", age, "歳なんだね！")</textarea>
                 batched: (text) => captured.push(text)
             });
 
-            // input()からの入力を受け取る
-            // 実行するたびに1回目から数え直し、input()の回数に合わせて番号を増やす
+            // 入力値をUTF-8のバイト列にして順番に渡す
             let inputBuffer = [];
-            let inputCount = 0;
+
+            for (const value of values) {
+                const bytes = new TextEncoder().encode(value + "\n");
+                inputBuffer.push(...bytes);
+            }
 
             pyodide.setStdin({
                 stdin: () => {
-                    // 入力バッファが空になったら、次の入力を求める
                     if (inputBuffer.length === 0) {
-                        inputCount++;
-
-                        const value = window.prompt(
-                            `🐼【${inputCount}回目の入力】\n入力する内容を入れてね！`
-                        );
-
-                        if (value === null) {
-                            return null;
-                        }
-
-                        inputBuffer = Array.from(
-                            new TextEncoder().encode(value + "\n")
-                        );
+                        return null;
                     }
 
                     return inputBuffer.shift();
@@ -355,11 +487,7 @@ print("あなたは", age, "歳なんだね！")</textarea>
                 isatty: true
             });
 
-            const code = document.getElementById("code").value;
-
-            status.textContent = "🐍 Pythonを実行しています...";
-
-            await pyodide.runPythonAsync(code);
+            await pyodide.runPythonAsync(currentCode);
 
             output.textContent = captured.join("\n") ||
                 "🎉 実行完了！表示する結果はありません。";
@@ -370,15 +498,12 @@ print("あなたは", age, "歳なんだね！")</textarea>
             output.textContent = String(error);
             status.textContent =
                 "💦 エラーが発生しました。コードを確認してみよう。";
-
-        } finally {
-            button.disabled = false;
         }
-    });
+    }
     </script>
     """,
-    height=850,
-    scrolling=False,
+    height=1100,
+    scrolling=True,
 )
 
 # =========================================
@@ -647,7 +772,7 @@ if st.session_state.pending_question:
     process_question(pending)
 
 # =========================================
-# 📝 質問入力欄（入力欄だけ表示）
+# 📝 質問入力欄
 # =========================================
 
 if mode == "Pythonに質問する":
@@ -700,6 +825,5 @@ st.markdown("""
 ">
     🐼 🐸 🐰<br>
     <b>わくわく！Pythonラボ</b><br>
-    少しずつ挑戦して、楽しくプログラミングを学ぼう！ 🌈
 </div>
 """, unsafe_allow_html=True)
