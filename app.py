@@ -1,4 +1,3 @@
-
 import os
 import streamlit as st
 import streamlit.components.v1 as components
@@ -6,7 +5,7 @@ from google import genai
 from google.genai import types
 
 # =========================================
-# ページ設定
+# 🌈 ページ設定
 # =========================================
 
 st.set_page_config(
@@ -17,7 +16,7 @@ st.set_page_config(
 )
 
 # =========================================
-# デザイン
+# 🎨 デザイン
 # =========================================
 
 st.markdown("""
@@ -27,17 +26,21 @@ st.markdown("""
         135deg, #fff5fb 0%, #f0f7ff 50%, #f2fff7 100%
     );
 }
+
 .block-container {
     max-width: 1100px;
     padding: 1.5rem 1.5rem 3rem 1.5rem;
 }
+
 h1, h2, h3 {
     color: #6047ad !important;
 }
+
 p, li {
     color: #45445c;
     line-height: 1.8;
 }
+
 .stButton > button,
 .stFormSubmitButton > button {
     border: 0;
@@ -47,12 +50,14 @@ p, li {
     color: white;
     font-weight: 800;
 }
+
 .stButton > button:hover,
 .stFormSubmitButton > button:hover {
     color: white;
     border: 0;
     filter: brightness(1.05);
 }
+
 .stTextArea textarea {
     border: 2px solid #e1d9ff;
     border-radius: 14px;
@@ -60,6 +65,7 @@ p, li {
     color: #303047;
     line-height: 1.8;
 }
+
 div[role="radiogroup"] {
     background: #ffffffc9;
     border: 1px solid #e8e0ff;
@@ -67,10 +73,12 @@ div[role="radiogroup"] {
     padding: 14px 16px;
     gap: 12px;
 }
+
 div[role="radiogroup"] label {
     color: #4c4770;
     font-weight: 650;
 }
+
 [data-testid="stChatMessage"] {
     background: #ffffffc9;
     border: 1px solid #ebe5ff;
@@ -78,17 +86,24 @@ div[role="radiogroup"] label {
     padding: 1rem;
     margin-bottom: 1rem;
 }
+
 [data-testid="stForm"] {
     background: #ffffffbd;
     border: 1px solid #e7dfff;
     border-radius: 18px;
     padding: 16px;
 }
+
+@media (max-width: 700px) {
+    .block-container {
+        padding: 1rem 1rem 2rem 1rem;
+    }
+}
 </style>
 """, unsafe_allow_html=True)
 
 # =========================================
-# ヘッダー
+# 🐼 ヘッダー
 # =========================================
 
 st.markdown("""
@@ -118,7 +133,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # =========================================
-# APIキー確認
+# 🔑 APIキー確認
 # =========================================
 
 api_key = os.getenv("GEMINI_API_KEY")
@@ -137,7 +152,7 @@ if not api_key:
     st.stop()
 
 # =========================================
-# Geminiクライアント
+# 🤖 Geminiクライアント
 # =========================================
 
 @st.cache_resource
@@ -150,7 +165,7 @@ def get_client(key):
 client = get_client(api_key)
 
 # =========================================
-# Pythonコード実験室
+# 🧪 Pythonコード実行エリア
 # =========================================
 
 st.markdown("""
@@ -173,612 +188,369 @@ st.markdown("""
 
 components.html(
     r"""
-<div style="
-    font-family:Arial,sans-serif;
-    background:white;
-    border:2px solid #e4dcff;
-    border-radius:18px;
-    padding:16px;
-">
+    <div style="
+        font-family: Arial, sans-serif;
+        background: white;
+        border: 2px solid #e4dcff;
+        border-radius: 18px;
+        padding: 16px;
+        box-sizing: border-box;
+    ">
+        <div style="
+            color: #6047ad;
+            font-size: 17px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        ">
+            💻 コード入力
+        </div>
 
-    <h3 style="color:#6047ad;">💻 コード入力</h3>
-
-    <textarea id="code" spellcheck="false" style="
-        box-sizing:border-box;
-        width:100%;
-        height:240px;
-        resize:vertical;
-        font-family:Consolas,monospace;
-        font-size:14px;
-        line-height:1.7;
-        padding:14px;
-        border:2px solid #ddd5ff;
-        border-radius:12px;
-        background:#faf9ff;
-        color:#302d46;
-    ">name = input("名前を入力してください：")
+        <textarea id="code" spellcheck="false" style="
+            box-sizing: border-box;
+            width: 100%;
+            height: 220px;
+            resize: vertical;
+            font-family: Consolas, monospace;
+            font-size: 14px;
+            line-height: 1.7;
+            padding: 14px;
+            border: 2px solid #ddd5ff;
+            border-radius: 12px;
+            background: #faf9ff;
+            color: #302d46;
+        ">name = input("名前を入力してください：")
 print("こんにちは、" + name + "さん！")
 
 age = input("年齢を入力してください：")
 print("あなたは", age, "歳なんだね！")</textarea>
 
-    <button id="prepare" style="
-        margin-top:12px;
-        width:100%;
-        padding:13px;
-        border:0;
-        border-radius:12px;
-        background:linear-gradient(100deg,#8b6ce8,#6798f5);
-        color:white;
-        font-size:16px;
-        font-weight:bold;
-        cursor:pointer;
-    ">
-        ▶ コードを実行する！
-    </button>
-
-    <div id="input-area" style="
-        display:none;
-        background:#f4f0ff;
-        border:2px solid #cfc2ff;
-        border-radius:14px;
-        padding:15px;
-        margin-top:15px;
-    ">
-        <h3 style="color:#6047ad;">⌨️ Pythonの入力コーナー</h3>
-        <div id="input-fields"></div>
-        <button id="execute" style="
-            margin-top:12px;
-            width:100%;
-            padding:13px;
-            border:0;
-            border-radius:12px;
-            background:#23836b;
-            color:white;
-            font-size:16px;
-            font-weight:bold;
-            cursor:pointer;
+        <button id="prepare" style="
+            margin-top: 12px;
+            width: 100%;
+            padding: 13px;
+            border: 0;
+            border-radius: 12px;
+            background: linear-gradient(100deg, #8b6ce8, #6798f5);
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
         ">
-            ✅ 入力内容で実行！
+            ▶ コードを実行する！
         </button>
-    </div>
 
-    <div id="game-area" style="
-        display:none;
-        margin-top:18px;
-        padding:16px;
-        background:#f4f0ff;
-        border:2px solid #cfc2ff;
-        border-radius:16px;
-    ">
-        <h2 id="game-title" style="
-            color:#6047ad;
-            text-align:center;
-        "></h2>
-
-        <div id="game-result" style="
-            text-align:center;
-            font-size:22px;
-            font-weight:bold;
-            color:#6047ad;
-            margin:18px 0;
-        "></div>
-
-        <div id="janken-buttons" style="
-            display:none;
-            gap:8px;
-            justify-content:center;
-            flex-wrap:wrap;
+        <div id="input-area" style="
+            display: none;
+            background: #f4f0ff;
+            border: 2px solid #cfc2ff;
+            border-radius: 14px;
+            padding: 15px;
+            margin-top: 15px;
         ">
-            <button class="hand" data-hand="グー">✊ グー</button>
-            <button class="hand" data-hand="チョキ">✌️ チョキ</button>
-            <button class="hand" data-hand="パー">✋ パー</button>
+            <div style="
+                font-size: 19px;
+                font-weight: bold;
+                color: #6047ad;
+                margin-bottom: 10px;
+            ">
+                ⌨️ Pythonの入力コーナー
+            </div>
+
+            <div id="input-fields"></div>
+
+            <button id="execute" style="
+                margin-top: 15px;
+                width: 100%;
+                padding: 13px;
+                border: 0;
+                border-radius: 12px;
+                background: #23836b;
+                color: white;
+                font-size: 16px;
+                font-weight: bold;
+                cursor: pointer;
+            ">
+                ✅ 入力内容で実行！
+            </button>
         </div>
 
-        <div id="score-area" style="
-            display:none;
-            gap:8px;
-            margin-top:18px;
-            text-align:center;
+        <div id="status" aria-live="polite" style="
+            margin: 12px 0;
+            color: #6353a0;
+            font-size: 14px;
+            line-height: 1.7;
         ">
-            <div class="score">
-                🏆 勝ち<br><b id="wins">0</b>
-            </div>
-            <div class="score">
-                💦 負け<br><b id="losses">0</b>
-            </div>
-            <div class="score">
-                🤝 あいこ<br><b id="draws">0</b>
-            </div>
+            🌟 準備OK！実行ボタンを押してみよう。
         </div>
 
-        <button id="omikuji-button" style="
-            display:none;
-            width:100%;
-            padding:14px;
-            margin-top:12px;
-            border:0;
-            border-radius:12px;
-            background:#8b6ce8;
-            color:white;
-            font-size:17px;
-            font-weight:bold;
-            cursor:pointer;
+        <div style="
+            color: #23836b;
+            font-size: 17px;
+            font-weight: bold;
+            margin: 12px 0 8px;
         ">
-            🔄 もう一度おみくじを引く！
-        </button>
+            📺 実行結果
+        </div>
 
-        <button id="reset-button" style="
-            display:none;
-            width:100%;
-            padding:12px;
-            margin-top:12px;
-            border:0;
-            border-radius:12px;
-            background:#77718e;
-            color:white;
-            font-weight:bold;
-            cursor:pointer;
+        <pre id="output" style="
+            box-sizing: border-box;
+            background: #24243a;
+            color: #e5e8ff;
+            padding: 16px;
+            height: 300px;
+            overflow: auto;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+            border: 2px solid #393958;
+            border-radius: 12px;
+            margin: 0;
+            font-family: Consolas, monospace;
+            font-size: 14px;
+            line-height: 1.8;
+        ">✨ ここに実行結果が表示されるよ！</pre>
+
+        <div style="
+            color: #77718e;
+            font-size: 12px;
+            margin-top: 10px;
+            line-height: 1.7;
         ">
-            🔄 成績をリセット
-        </button>
+            💡 input()を使うと、ここに入力欄が表示されるよ！<br>
+            入力欄に答えを書いてから「入力内容で実行！」を押してね。
+        </div>
     </div>
 
-    <div id="status" style="
-        margin:12px 0;
-        color:#6353a0;
-        font-size:14px;
-        line-height:1.7;
-    ">
-        🌟 準備OK！実行ボタンを押してみよう。
-    </div>
+    <script>
+    const prepareButton = document.getElementById("prepare");
+    const executeButton = document.getElementById("execute");
+    const codeArea = document.getElementById("code");
+    const output = document.getElementById("output");
+    const status = document.getElementById("status");
+    const inputArea = document.getElementById("input-area");
+    const inputFields = document.getElementById("input-fields");
 
-    <h3 style="color:#23836b;">📺 実行結果</h3>
+    let pyodide = null;
+    let currentCode = "";
+    let inputCount = 0;
 
-    <pre id="output" style="
-        box-sizing:border-box;
-        background:#24243a;
-        color:#e5e8ff;
-        padding:16px;
-        height:230px;
-        overflow:auto;
-        white-space:pre-wrap;
-        overflow-wrap:anywhere;
-        border:2px solid #393958;
-        border-radius:12px;
-        margin:0;
-        font-family:Consolas,monospace;
-        font-size:14px;
-        line-height:1.8;
-    ">✨ ここに実行結果が表示されるよ！</pre>
+    // Pythonコード内のinput()を数える
+    function countInputs(code) {
+        const matches = code.match(/\binput\s*\(/g);
+        return matches ? matches.length : 0;
+    }
 
-    <div style="
-        color:#77718e;
-        font-size:12px;
-        margin-top:10px;
-        line-height:1.7;
-    ">
-        💡 input()を使うと入力欄が表示されるよ！<br>
-        ゲーム用コードでは、サイトのボタンから操作できるよ！
-    </div>
-</div>
+    // input()の数だけ入力欄を作る
+    function makeInputFields(count) {
+        inputFields.innerHTML = "";
 
-<style>
-.hand {
-    padding:14px 18px;
-    border:0;
-    border-radius:12px;
-    background:#8b6ce8;
-    color:white;
-    font-size:18px;
-    font-weight:bold;
-    cursor:pointer;
-}
-.score {
-    flex:1;
-    background:white;
-    padding:12px;
-    border-radius:12px;
-    color:#6047ad;
-    font-size:15px;
-}
-.score b {
-    font-size:25px;
-}
-button:disabled {
-    opacity:.5;
-    cursor:not-allowed;
-}
-</style>
+        for (let i = 0; i < count; i++) {
+            const wrapper = document.createElement("div");
+            wrapper.style.marginBottom = "14px";
 
-<script>
-const codeArea = document.getElementById("code");
-const prepareButton = document.getElementById("prepare");
-const executeButton = document.getElementById("execute");
-const inputArea = document.getElementById("input-area");
-const inputFields = document.getElementById("input-fields");
-const gameArea = document.getElementById("game-area");
-const gameResult = document.getElementById("game-result");
-const output = document.getElementById("output");
-const status = document.getElementById("status");
+            const label = document.createElement("label");
+            label.textContent = `🐼 ${i + 1}回目の入力`;
+            label.style.display = "block";
+            label.style.fontWeight = "bold";
+            label.style.color = "#6047ad";
+            label.style.marginBottom = "6px";
 
-let pyodide = null;
-let currentCode = "";
-let inputCount = 0;
-let gameType = "";
-let gameGlobals = null;
+            const input = document.createElement("input");
+            input.type = "text";
+            input.id = `python-input-${i}`;
+            input.placeholder = `${i + 1}回目の答えを入力してね！`;
+            input.style.width = "100%";
+            input.style.boxSizing = "border-box";
+            input.style.padding = "12px";
+            input.style.border = "2px solid #ddd5ff";
+            input.style.borderRadius = "10px";
+            input.style.fontSize = "15px";
 
-function countInputs(code) {
-    const matches = code.match(/\binput\s*\(/g);
-    return matches ? matches.length : 0;
-}
-
-async function preparePyodide() {
-    if (!pyodide) {
-        status.textContent = "⏳ Pythonを準備しています...";
-
-        if (!window.loadPyodide) {
-            await new Promise((resolve, reject) => {
-                const script = document.createElement("script");
-                script.src =
-                    "https://cdn.jsdelivr.net/pyodide/v0.27.7/full/pyodide.js";
-                script.onload = resolve;
-                script.onerror = () => reject(
-                    new Error("Python実行環境を読み込めませんでした。")
-                );
-                document.head.appendChild(script);
-            });
+            wrapper.appendChild(label);
+            wrapper.appendChild(input);
+            inputFields.appendChild(wrapper);
         }
 
-        pyodide = await loadPyodide();
-    }
-}
-
-function makeInputFields(count) {
-    inputFields.innerHTML = "";
-
-    for (let i = 0; i < count; i++) {
-        const wrapper = document.createElement("div");
-        wrapper.style.marginBottom = "12px";
-
-        const label = document.createElement("label");
-        label.textContent = `🐼 ${i + 1}回目の入力`;
-        label.style.display = "block";
-        label.style.fontWeight = "bold";
-        label.style.color = "#6047ad";
-        label.style.marginBottom = "6px";
-
-        const field = document.createElement("input");
-        field.type = "text";
-        field.id = `python-input-${i}`;
-        field.placeholder = `${i + 1}回目の答えを入力してね！`;
-        field.style.cssText =
-            "width:100%;box-sizing:border-box;padding:12px;border:2px solid #ddd5ff;border-radius:10px;";
-
-        wrapper.appendChild(label);
-        wrapper.appendChild(field);
-        inputFields.appendChild(wrapper);
+        inputArea.style.display = count > 0 ? "block" : "none";
     }
 
-    inputArea.style.display = count > 0 ? "block" : "none";
-}
+    // Pyodideを準備する
+    async function preparePyodide() {
+        if (!pyodide) {
+            status.textContent = "⏳ Pythonを準備しています...";
 
-function setScore(scoreProxy) {
-    const score = scoreProxy.toJs({
-        dict_converter: Object.fromEntries
-    });
-
-    document.getElementById("wins").textContent = score.wins;
-    document.getElementById("losses").textContent = score.losses;
-    document.getElementById("draws").textContent = score.draws;
-
-    scoreProxy.destroy();
-}
-
-function showError(error) {
-    const errorText = String(error);
-    let explanation =
-        "エラーの原因を特定できませんでした。エラー文を確認してみよう！";
-
-    if (errorText.includes("SyntaxError")) {
-        explanation =
-            "📝 文法エラーだよ！カッコや引用符、コロンを確認してみよう。";
-    } else if (errorText.includes("NameError")) {
-        explanation =
-            "🔍 名前エラーだよ！変数名や関数名のスペルを確認してみよう。";
-    } else if (errorText.includes("TypeError")) {
-        explanation =
-            "🧩 型エラーだよ！数字と文字列などの使い方を確認してみよう。";
-    } else if (errorText.includes("IndentationError")) {
-        explanation =
-            "📐 インデントエラーだよ！行の先頭の空白を確認してみよう。";
-    } else if (errorText.includes("IndexError")) {
-        explanation =
-            "📦 リストの範囲エラーだよ！存在しない番号を使っていないか確認しよう。";
-    } else if (errorText.includes("ZeroDivisionError")) {
-        explanation =
-            "➗ 0で割ろうとしているよ！割り算の右側を確認しよう。";
-    } else if (errorText.includes("EOFError")) {
-        explanation =
-            "⌨️ 入力が途中で終了したよ！input()の入力を確認しよう。";
-    }
-
-    output.textContent =
-        "【エラーの内容】\n" + errorText +
-        "\n\n【💡 AI先生からのヒント】\n" + explanation;
-
-    status.textContent =
-        "💦 エラーを見つけたよ！ヒントを参考に直してみよう。";
-}
-
-async function callGameFunction(functionName, argument = null) {
-    if (!gameGlobals) {
-        throw new Error("ゲームが読み込まれていません。");
-    }
-
-    pyodide.globals.set("site_game_globals", gameGlobals);
-
-    if (argument === null) {
-        return await pyodide.runPythonAsync(
-            `site_game_globals[${JSON.stringify(functionName)}]()`
-        );
-    }
-
-    pyodide.globals.set("site_game_argument", argument);
-
-    return await pyodide.runPythonAsync(
-        `site_game_globals[${JSON.stringify(functionName)}](site_game_argument)`
-    );
-}
-
-async function startGame() {
-    gameArea.style.display = "block";
-    inputArea.style.display = "none";
-    gameResult.textContent = "";
-
-    if (gameType === "janken") {
-        document.getElementById("game-title").textContent =
-            "✊ じゃんけんゲーム！";
-
-        document.getElementById("janken-buttons").style.display = "flex";
-        document.getElementById("score-area").style.display = "flex";
-        document.getElementById("reset-button").style.display = "block";
-        document.getElementById("omikuji-button").style.display = "none";
-
-        const score = await callGameFunction("get_score");
-        setScore(score);
-    }
-
-    if (gameType === "omikuji") {
-        document.getElementById("game-title").textContent =
-            "🔮 おみくじゲーム！";
-
-        document.getElementById("janken-buttons").style.display = "none";
-        document.getElementById("score-area").style.display = "none";
-        document.getElementById("reset-button").style.display = "none";
-        document.getElementById("omikuji-button").style.display = "block";
-
-        await drawOmikuji();
-    }
-}
-
-async function drawOmikuji() {
-    try {
-        const result = await callGameFunction("draw_omikuji");
-        gameResult.textContent = String(result);
-        status.textContent = "🌟 おみくじを引いたよ！";
-    } catch (error) {
-        showError(error);
-    }
-}
-
-prepareButton.addEventListener("click", async () => {
-    currentCode = codeArea.value;
-    inputCount = countInputs(currentCode);
-    gameType = "";
-    gameGlobals = null;
-
-    output.textContent = "";
-    gameArea.style.display = "none";
-    inputArea.style.display = "none";
-
-    prepareButton.disabled = true;
-
-    try {
-        await preparePyodide();
-
-        // GAME_TYPEを宣言しているか確認
-        const gameMatch = currentCode.match(
-            /^\s*GAME_TYPE\s*=\s*["'](janken|omikuji)["']/m
-        );
-
-        if (gameMatch) {
-            gameType = gameMatch[1];
-
-            if (inputCount > 0) {
-                throw new Error(
-                    "ゲーム用コードではinput()を使わず、サイトのボタンを使ってね。"
-                );
+            if (!window.loadPyodide) {
+                await new Promise((resolve, reject) => {
+                    const script = document.createElement("script");
+                    script.src =
+                        "https://cdn.jsdelivr.net/pyodide/v0.27.7/full/pyodide.js";
+                    script.onload = resolve;
+                    script.onerror = () => reject(
+                        new Error("Python実行環境を読み込めませんでした。")
+                    );
+                    document.head.appendChild(script);
+                });
             }
 
-            // ゲーム専用の名前空間を作る
-            await pyodide.runPythonAsync(
-                "game_globals = {}"
-            );
-
-            pyodide.globals.set("site_user_code", currentCode);
-
-            await pyodide.runPythonAsync(
-                "exec(compile(site_user_code, '<user code>', 'exec'), game_globals)"
-            );
-
-            gameGlobals = pyodide.globals.get("game_globals");
-
-            await startGame();
-
-            status.textContent = "🎮 ゲームの準備ができたよ！";
-
-        } else if (inputCount > 0) {
-            makeInputFields(inputCount);
-            status.textContent =
-                `✏️ ${inputCount}個の入力欄を用意したよ！答えを入力してね。`;
-
-            document.getElementById("python-input-0").focus();
-
-        } else {
-            await runOrdinaryPython([]);
+            pyodide = await loadPyodide();
         }
-
-    } catch (error) {
-        showError(error);
-    } finally {
-        prepareButton.disabled = false;
-    }
-});
-
-async function runOrdinaryPython(values) {
-    output.textContent = "";
-    status.textContent = "🐍 Pythonを実行しています...";
-
-    try {
-        const captured = [];
-
-        pyodide.setStdout({
-            batched: text => captured.push(text)
-        });
-
-        pyodide.setStderr({
-            batched: text => captured.push(text)
-        });
-
-        let inputBuffer = [];
-
-        for (const value of values) {
-            inputBuffer.push(
-                ...new TextEncoder().encode(value + "\n")
-            );
-        }
-
-        pyodide.setStdin({
-            stdin: () => {
-                if (inputBuffer.length === 0) {
-                    return null;
-                }
-                return inputBuffer.shift();
-            },
-            isatty: true
-        });
-
-        pyodide.globals.set("site_user_code", currentCode);
-
-        await pyodide.runPythonAsync(
-            "exec(compile(site_user_code, '<user code>', 'exec'), {})"
-        );
-
-        output.textContent = captured.join("\n") ||
-            "🎉 実行完了！表示する結果はありません。";
-
-        status.textContent = "🎉 実行成功！よくできました！";
-
-    } catch (error) {
-        showError(error);
-    }
-}
-
-executeButton.addEventListener("click", async () => {
-    const values = [];
-
-    for (let i = 0; i < inputCount; i++) {
-        const field = document.getElementById(`python-input-${i}`);
-
-        if (!field.value.trim()) {
-            status.textContent =
-                `⚠️ ${i + 1}回目の入力欄に答えを入力してね！`;
-            field.focus();
-            return;
-        }
-
-        values.push(field.value);
     }
 
-    executeButton.disabled = true;
-    prepareButton.disabled = true;
+    // 最初のボタン：コードを確認して入力欄を作る
+    prepareButton.addEventListener("click", async () => {
+        currentCode = codeArea.value;
+        inputCount = countInputs(currentCode);
 
-    await runOrdinaryPython(values);
-
-    executeButton.disabled = false;
-    prepareButton.disabled = false;
-});
-
-// じゃんけんボタン
-document.querySelectorAll(".hand").forEach(button => {
-    button.addEventListener("click", async () => {
-        button.disabled = true;
+        output.textContent = "";
+        inputFields.innerHTML = "";
 
         try {
-            const result = await callGameFunction(
-                "play",
-                button.dataset.hand
-            );
+            await preparePyodide();
 
-            gameResult.textContent = String(result);
+            if (inputCount > 0) {
+                makeInputFields(inputCount);
 
-            const score = await callGameFunction("get_score");
-            setScore(score);
+                status.textContent =
+                    `✏️ ${inputCount}個の入力欄を用意したよ！答えを入力してね。`;
 
-            status.textContent = "🎉 もう一回挑戦してみよう！";
+                document.getElementById("python-input-0").focus();
+            } else {
+                inputArea.style.display = "none";
+                await runPython([]);
+            }
 
         } catch (error) {
-            showError(error);
-        } finally {
-            button.disabled = false;
+            output.textContent = String(error);
+            status.textContent = "💦 Pythonの準備中にエラーが発生しました。";
         }
     });
-});
 
-// おみくじをもう一度引く
-document.getElementById("omikuji-button")
-.addEventListener("click", drawOmikuji);
+    // 2つ目のボタン：入力内容を集めてPythonを実行
+    executeButton.addEventListener("click", async () => {
+        const values = [];
 
-// 成績リセット
-document.getElementById("reset-button")
-.addEventListener("click", async () => {
-    try {
-        await callGameFunction("reset_score");
+        for (let i = 0; i < inputCount; i++) {
+            const field = document.getElementById(`python-input-${i}`);
 
-        const score = await callGameFunction("get_score");
-        setScore(score);
+            if (!field.value.trim()) {
+                status.textContent =
+                    `⚠️ ${i + 1}回目の入力欄に答えを入力してね！`;
+                field.focus();
+                return;
+            }
 
-        gameResult.textContent = "成績をリセットしたよ！";
-        status.textContent = "🔄 成績が0になったよ！";
+            values.push(field.value);
+        }
 
-    } catch (error) {
-        showError(error);
+        executeButton.disabled = true;
+        prepareButton.disabled = true;
+
+        await runPython(values);
+
+        executeButton.disabled = false;
+        prepareButton.disabled = false;
+    });
+
+    // Pythonを実行する
+    async function runPython(values) {
+        output.textContent = "";
+        status.textContent = "🐍 Pythonを実行しています...";
+
+        try {
+            await preparePyodide();
+
+            const captured = [];
+
+            pyodide.setStdout({
+                batched: (text) => captured.push(text)
+            });
+
+            pyodide.setStderr({
+                batched: (text) => captured.push(text)
+            });
+
+            // 入力値をUTF-8のバイト列にして順番に渡す
+            let inputBuffer = [];
+
+            for (const value of values) {
+                const bytes = new TextEncoder().encode(value + "\n");
+                inputBuffer.push(...bytes);
+            }
+
+            pyodide.setStdin({
+                stdin: () => {
+                    if (inputBuffer.length === 0) {
+                        return null;
+                    }
+
+                    return inputBuffer.shift();
+                },
+                isatty: true
+            });
+
+            await pyodide.runPythonAsync(currentCode);
+
+            output.textContent = captured.join("\n") ||
+                "🎉 実行完了！表示する結果はありません。";
+
+            status.textContent = "🎉 実行成功！よくできました！";
+
+                } catch (error) {
+            const errorText = String(error);
+            output.textContent = errorText;
+
+            let explanation = "エラーの原因を特定できませんでした。エラー文を確認してみよう！";
+
+            if (errorText.includes("SyntaxError")) {
+                explanation = "📝 文法エラーだよ！\nカッコや引用符の閉じ忘れ、コロンの付け忘れなどを確認してみよう。";
+            } else if (errorText.includes("NameError")) {
+                explanation = "🔍 名前エラーだよ！\n変数名や関数名のスペルが正しいか確認してみよう。";
+            } else if (errorText.includes("TypeError")) {
+                explanation = "🧩 型エラーだよ！\n数字と文字列など、種類の違うデータを間違った方法で使っていないか確認してみよう。";
+            } else if (errorText.includes("IndentationError")) {
+                explanation = "📐 インデントエラーだよ！\n行の先頭の空白や字下げがそろっているか確認してみよう。";
+            } else if (errorText.includes("IndexError")) {
+                explanation = "📦 リストの範囲エラーだよ！\n存在しない番号のデータを取り出そうとしていないか確認してみよう。";
+            } else if (errorText.includes("ZeroDivisionError")) {
+                explanation = "➗ 0で割ろうとしているよ！\n割り算の右側が0になっていないか確認してみよう。";
+            } else if (errorText.includes("EOFError")) {
+                explanation = "⌨️ 入力が途中で終了したよ！\ninput()の入力をキャンセルしていないか確認してみよう。";
+            }
+
+            output.textContent =
+                "【エラーの内容】\n" + errorText +
+                "\n\n【💡 AI先生からのヒント】\n" + explanation;
+
+            status.textContent =
+                "💦 エラーを見つけたよ！ヒントを参考に直してみよう。";
+        }
     }
-});
-</script>
-""",
-    height=1450,
+    </script>
+    """,
+    height=1100,
     scrolling=True,
 )
 
 # =========================================
-# 学習モード選択
+# 🎮 学習モード選択
 # =========================================
 
 st.markdown("""
 <div style="
-    text-align:center;
-    background:linear-gradient(120deg,#fff0fa,#f0edff);
-    border-radius:18px;
-    padding:18px;
-    margin:20px 0 14px 0;
+    text-align: center;
+    background: linear-gradient(120deg, #fff0fa, #f0edff);
+    border-radius: 18px;
+    padding: 18px;
+    margin: 20px 0 14px 0;
 ">
-    <div style="font-size:28px;">🎮 🌈 💡</div>
-    <div style="color:#6047ad;font-size:24px;font-weight:900;">
+    <div style="font-size: 28px;">🎮 🌈 💡</div>
+    <div style="
+        color: #6047ad;
+        font-size: 24px;
+        font-weight: 900;
+    ">
         どの冒険に出発する？
     </div>
-    <div style="color:#68617f;line-height:1.8;">
+    <div style="color: #68617f; line-height: 1.8;">
         好きなモードを選んで、AI先生と学ぼう！
     </div>
 </div>
@@ -815,19 +587,19 @@ mode_descriptions = {
 
 st.markdown(f"""
 <div style="
-    background:#dff1ff;
-    border-radius:12px;
-    padding:18px 22px;
-    margin:16px 0;
-    color:#45445c;
-    font-size:20px;
+    background: #dff1ff;
+    border-radius: 12px;
+    padding: 18px 22px;
+    margin: 16px 0;
+    color: #45445c;
+    font-size: 20px;
 ">
     🌟 {mode_descriptions[mode]}
 </div>
 """, unsafe_allow_html=True)
 
 # =========================================
-# モード別の指示
+# 📚 モード別の指示
 # =========================================
 
 instructions = {
@@ -840,66 +612,23 @@ Pythonについて、初心者にも分かる日本語で説明してくださ�
     "おみくじゲームを作る": """
 おみくじゲームを小さなステップに分けて教えてください。
 print、random、変数、リスト、ifを段階的に使います。
-
-完成コードはサイトのゲーム画面に対応させます。
-完成コードには必ず次の形式を使います。
-
-GAME_TYPE = "omikuji"
-
-def draw_omikuji():
-    # おみくじの結果を作る
-    # 結果の文字列をreturnする
-
-サイトの「もう一度おみくじを引く！」ボタンから
-draw_omikuji()が呼び出されます。
-
-ゲーム用コードではinput()やwhile Trueを使わないでください。
-
 最初から完成コードを全部見せず、学習者自身にコードを書いてもらいます。
 1回の回答では次の作業を1つだけ説明してください。
 「ヒント」と言われたら短いヒントを1つ出してください。
 「コードを見せて」と言われたら必要な部分だけ見せてください。
 コードが送られたら確認し、直す点を説明してください。
-完成したら「ゲーム完成です！」と伝えてください。
+完成したら「ゲーム完成です！」と伝え、改造アイデアを1つ紹介してください。
 """,
 
     "じゃんけんゲームを作る": """
 じゃんけんゲームを小さなステップに分けて教えてください。
 print、random、変数、リスト、ifを段階的に使います。
-
-完成コードはサイトのゲーム画面に対応させます。
-完成コードには必ず次の形式を使います。
-
-GAME_TYPE = "janken"
-
-wins = 0
-losses = 0
-draws = 0
-
-def play(player):
-    # playerにはグー・チョキ・パーが渡される
-    # 勝敗を判定して回数を増やす
-    # 結果の文字列をreturnする
-
-def get_score():
-    return {
-        "wins": wins,
-        "losses": losses,
-        "draws": draws
-    }
-
-def reset_score():
-    # wins、losses、drawsを0に戻す
-
-play()はサイトのグー・チョキ・パーのボタンから呼び出されます。
-input()やwhile Trueは使わないでください。
-
 最初から完成コードを全部見せず、学習者自身にコードを書いてもらいます。
 1回の回答では次の作業を1つだけ説明してください。
 「ヒント」と言われたら短いヒントを1つ出してください。
 「コードを見せて」と言われたら必要な部分だけ見せてください。
 コードが送られたら確認し、直す点を説明してください。
-完成したら「ゲーム完成です！」と伝えてください。
+完成したら「ゲーム完成です！」と伝え、改造アイデアを1つ紹介してください。
 """,
 
     "作ったゲームを改良する": """
@@ -919,11 +648,6 @@ input()やwhile Trueは使わないでください。
 ・3回勝負にする
 ・連勝記録を表示する
 
-サイト対応のゲームコードでは、
-おみくじはGAME_TYPE = "omikuji"とdraw_omikuji()を使います。
-じゃんけんはGAME_TYPE = "janken"とplay()、get_score()、reset_score()を使います。
-ゲーム用コードではinput()やwhile Trueを使いません。
-
 送られたコードを確認し、元のゲームの良いところを残してください。
 希望された部分を中心に改良し、変更点を初心者にも分かる言葉で説明してください。
 必要に応じて実行できるコード全体を示してください。
@@ -931,7 +655,7 @@ input()やwhile Trueは使わないでください。
 }
 
 # =========================================
-# 会話履歴
+# 💬 会話履歴を準備
 # =========================================
 
 if "messages" not in st.session_state:
@@ -948,7 +672,7 @@ if "pending_question" not in st.session_state:
     st.session_state.pending_question = None
 
 # =========================================
-# 質問を処理する関数
+# 🤖 質問を処理する関数
 # =========================================
 
 def process_question(question):
@@ -1052,7 +776,7 @@ Pythonプログラミング学習支援チャットボットです。
     })
 
 # =========================================
-# 過去の会話を表示
+# 💬 過去の会話を表示
 # =========================================
 
 for message in st.session_state.messages:
@@ -1063,7 +787,7 @@ for message in st.session_state.messages:
             st.markdown(message["content"])
 
 # =========================================
-# 送信された質問を処理
+# 📩 送信された質問があれば先に処理
 # =========================================
 
 if st.session_state.pending_question:
@@ -1072,7 +796,7 @@ if st.session_state.pending_question:
     process_question(pending)
 
 # =========================================
-# 質問入力欄
+# 📝 質問入力欄
 # =========================================
 
 if mode == "Pythonに質問する":
@@ -1104,7 +828,7 @@ if submitted:
         st.warning("質問を入力してね！")
 
 # =========================================
-# 会話リセット
+# 🧹 会話リセット
 # =========================================
 
 if st.button("🧹 このモードの会話をリセット"):
@@ -1113,15 +837,15 @@ if st.button("🧹 このモードの会話をリセット"):
     st.rerun()
 
 # =========================================
-# フッター
+# 🌟 フッター
 # =========================================
 
 st.markdown("""
 <div style="
-    text-align:center;
-    color:#77718e;
-    padding:20px 8px;
-    line-height:1.9;
+    text-align: center;
+    color: #77718e;
+    padding: 20px 8px;
+    line-height: 1.9;
 ">
     🐼 🐸 🐰<br>
     <b>わくわく！Pythonラボ</b><br>
